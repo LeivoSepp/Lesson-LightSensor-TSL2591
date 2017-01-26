@@ -16,7 +16,7 @@ namespace LessonLightSensorTSL2591
 
         // TSL2591 Sensor
         private TSL2591 TSL2591Sensor;
-        byte gain = TSL2591.TSL2591_GAIN_25X;
+        byte gain = TSL2591.TSL2591_GAIN_MED;
         byte itime = TSL2591.TSL2591_INT_TIME_200MS;
         private static double CurrentLux = 0;
 
@@ -67,7 +67,7 @@ namespace LessonLightSensorTSL2591
             initDevice();
             while (true)
             {
-                uint[] Data = TSL2591Sensor.GetData();
+                uint[] Data = TSL2591Sensor.GetData(); //data[0]:VISIBLE, data[1]:INFRARED
                 CurrentLux = TSL2591Sensor.GetLux(gain, itime, Data[0], Data[1]);
                 String strLux = String.Format("{0:0.00}", CurrentLux);
                 SendMessages(strLux);

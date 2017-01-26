@@ -5,28 +5,33 @@ namespace LessonLightSensorTSL2591
 {
     class TSL2591
     {
-        // TSL Address Constants
-        public const int TSL2591_ADDR = 0x29;    // address with '0' shorted on board 
-        // TSL Commands
+        // Address Constant
+        public const int TSL2591_ADDR = 0x29;
+        // Commands
         private const int TSL2591_CMD = 0xA0;
-        //private const int TSL2591_CMD_CLEAR = 0xE7;
-        // TSL Registers
+
+        // Registers
         private const int TSL2591_REG_ENABLE = 0x00;
         private const int TSL2591_REG_CONTROL = 0x01;
-        //private const int TSL2561_REG_TIMING = 0x01;
-        //private const int TSL2591_REG_THRESH_L = 0x04;
-        //private const int TSL2591_REG_THRESH_H = 0x06;
-        //private const int TSL2561_REG_INTCTL = 0x06;
         private const int TSL2591_REG_ID = 0x12;
         private const int TSL2591_REG_DATA_0 = 0x14;
         private const int TSL2591_REG_DATA_1 = 0x16;
 
         //private const int TSL2591_STATUS_REG = 0x13;
 
-        public const int TSL2591_GAIN_1X = 0x00;
-        public const int TSL2591_GAIN_25X = 0x10;
-        public const int TSL2591_GAIN_428X = 0x20;
-        public const int TSL2591_GAIN_9876X = 0x30;
+        /*
+         LOW gain: use in bright light to avoid sensor saturation
+         MED: use in low light to boost sensitivity 
+         HIGH: use in very low light condition
+         */
+        public const int TSL2591_GAIN_LOW = 0x00;
+        public const int TSL2591_GAIN_MED = 0x10;
+        public const int TSL2591_GAIN_HIGH = 0x20;
+        public const int TSL2591_GAIN_MAX = 0x30;
+        /*
+         100ms: fast reading but low resolution
+         600ms: slow reading but best accuracy
+         */
         public const int TSL2591_INT_TIME_100MS = 0x00;
         public const int TSL2591_INT_TIME_200MS = 0x01;
         public const int TSL2591_INT_TIME_300MS = 0x02;
@@ -47,19 +52,19 @@ namespace LessonLightSensorTSL2591
             this.I2C = I2CDevice;
         }
 
-        // TSL2561 Sensor Power up
+        // Sensor Power up
         public void PowerUp()
         {
             write8(TSL2591_REG_ENABLE, 0x03);
         }
 
-        // TSL2561 Sensor Power down
+        // Sensor Power down
         public void PowerDown()
         {
             write8(TSL2591_REG_ENABLE, 0x00);
         }
 
-        // Retrieve TSL ID
+        // Retrieve sensor ID
         public byte GetId()
         {
             return I2CRead8(TSL2591_REG_ID);
@@ -86,6 +91,12 @@ namespace LessonLightSensorTSL2591
             double d0, d1;
             double lux = 0.0;
 
+            // Determine if either sensor saturated (0xFFFF)
+            if ((CH0 == 0xFFFF) || (CH1 == 0xFFFF))
+            {
+                lux = 0.0;
+                return lux;
+            }
             // Convert from unsigned integer to floating point
             d0 = CH0; d1 = CH1;
 
@@ -97,7 +108,7 @@ namespace LessonLightSensorTSL2591
                 case 0x10: again = 25; break;
                 case 0x20: again = 428; break;
                 case 0x30: again = 9876; break;
-                default: again = 0; break;
+                default: again = 1; break;
             }
             double cpl = (atime * again) / LUX_DF;
             double lux1 = (d0 - (LUX_COEFB * d1)) / cpl;
