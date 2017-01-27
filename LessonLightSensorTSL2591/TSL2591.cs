@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading.Tasks;
+using Windows.Devices.Enumeration;
 using Windows.Devices.I2c;
 
 namespace LessonLightSensorTSL2591
@@ -46,12 +48,39 @@ namespace LessonLightSensorTSL2591
 
         // I2C Device
         private I2cDevice I2C;
-
-        public TSL2591(ref I2cDevice I2CDevice)
+        private int I2C_ADDRESS { get; set; } = TSL2591_ADDR;
+        public TSL2591(int i2cAddress = TSL2591_ADDR)
         {
-            this.I2C = I2CDevice;
+            I2C_ADDRESS = i2cAddress;
         }
+        public static bool IsInitialised { get; private set; } = false;
+        private void Initialise()
+        {
+            if (!IsInitialised)
+            {
+                EnsureInitializedAsync().Wait();
+            }
+        }
+        private async Task EnsureInitializedAsync()
+        {
+            if (IsInitialised) { return; }
+            try
+            {
+                var settings = new I2cConnectionSettings(I2C_ADDRESS);
+                settings.BusSpeed = I2cBusSpeed.FastMode;
+                settings.SharingMode = I2cSharingMode.Shared;
+                string aqs = I2cDevice.GetDeviceSelector("I2C1");         /* Find the selector string for the I2C bus controller */
+                var dis = await DeviceInformation.FindAllAsync(aqs);      /* Find the I2C bus controller device with our selector string           */
+                I2C = await I2cDevice.FromIdAsync(dis[0].Id, settings);   /* Create an I2cDevice with our selected bus controller and I2C settings */
 
+                PowerUp();
+                IsInitialised = true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("I2C Initialization Failed", ex);
+            }
+        }
         // Sensor Power up
         public void PowerUp()
         {
@@ -72,6 +101,7 @@ namespace LessonLightSensorTSL2591
 
         public void SetGain(byte gain, byte int_time)
         {
+            Initialise();
             write8(TSL2591_REG_CONTROL, (byte)(gain + int_time));
         }
 
@@ -84,10 +114,14 @@ namespace LessonLightSensorTSL2591
 
             return Data;
         }
-
         // Calculate Lux
-        public double GetLux(uint gain, uint itime, uint CH0, uint CH1)
+        public double GetLux(uint gain, uint itime)
         {
+            Initialise();
+            uint[] Data = GetData();
+            uint CH0 = Data[0];
+            uint CH1 = Data[1];
+
             double d0, d1;
             double lux = 0.0;
 
@@ -115,7 +149,6 @@ namespace LessonLightSensorTSL2591
             double lux2 = ((LUX_COEFC * d0) - (LUX_COEFD * d1)) / cpl;
             return Math.Max(lux1, lux2);
         }
-
         // Write byte
         private void write8(byte addr, byte cmd)
         {
@@ -123,7 +156,6 @@ namespace LessonLightSensorTSL2591
 
             I2C.Write(Command);
         }
-
         // Read byte
         private byte I2CRead8(byte addr)
         {
@@ -134,7 +166,6 @@ namespace LessonLightSensorTSL2591
 
             return data[0];
         }
-
         // Read integer
         private ushort I2CRead16(byte addr)
         {

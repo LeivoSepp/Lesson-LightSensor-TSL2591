@@ -2,7 +2,7 @@
   "dependencies": {
     "Microsoft.Azure.Devices.Client": "1.2.1",
     "Microsoft.Devices.Tpm": "1.0.0",
-    "Microsoft.NETCore.UniversalWindowsPlatform": "5.0.0"
+    "Microsoft.NETCore.UniversalWindowsPlatform": "5.2.2"
   },
   "frameworks": {
     "uap10.0": {}
