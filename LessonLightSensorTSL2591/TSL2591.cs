@@ -8,7 +8,7 @@ namespace LessonLightSensorTSL2591
     class TSL2591
     {
         // Address Constant
-        public const int TSL2591_ADDR = 0x29;
+        private const int TSL2591_ADDR = 0x29;
         // Commands
         private const int TSL2591_CMD = 0xA0;
 
@@ -26,32 +26,39 @@ namespace LessonLightSensorTSL2591
          MED: use in low light to boost sensitivity 
          HIGH: use in very low light condition
          */
-        public const int TSL2591_GAIN_LOW = 0x00;
-        public const int TSL2591_GAIN_MED = 0x10;
-        public const int TSL2591_GAIN_HIGH = 0x20;
-        public const int TSL2591_GAIN_MAX = 0x30;
+        public const int GAIN_LOW = 0x00;
+        public const int GAIN_MED = 0x10;
+        public const int GAIN_HIGH = 0x20;
+        public const int GAIN_MAX = 0x30;
         /*
          100ms: fast reading but low resolution
          600ms: slow reading but best accuracy
          */
-        public const int TSL2591_INT_TIME_100MS = 0x00;
-        public const int TSL2591_INT_TIME_200MS = 0x01;
-        public const int TSL2591_INT_TIME_300MS = 0x02;
-        public const int TSL2591_INT_TIME_400MS = 0x03;
-        public const int TSL2591_INT_TIME_500MS = 0x04;
-        public const int TSL2591_INT_TIME_600MS = 0x05;
+        public const int INT_TIME_100MS = 0x00;
+        public const int INT_TIME_200MS = 0x01;
+        public const int INT_TIME_300MS = 0x02;
+        public const int INT_TIME_400MS = 0x03;
+        public const int INT_TIME_500MS = 0x04;
+        public const int INT_TIME_600MS = 0x05;
         // Constants for LUX calculation
         private const double LUX_DF = 408.0;
         private const double LUX_COEFB = 1.64;  // CH0 coefficient
         private const double LUX_COEFC = 0.59;  // CH1 coefficient A
         private const double LUX_COEFD = 0.86;  //CH2 coefficient B
 
+        //default values
+        private const int gainDefault = GAIN_MED;
+        private const int integrationTimeDefault = INT_TIME_200MS;
+
+        private uint intTimeSet { get; set; } = integrationTimeDefault;
+        private uint gainSet { get; set; } = gainDefault;
+
         // I2C Device
         private I2cDevice I2C;
-        private int I2C_ADDRESS { get; set; } = TSL2591_ADDR;
-        public TSL2591(int i2cAddress = TSL2591_ADDR)
+        private int I2C_ADDRESS = TSL2591_ADDR;
+        public TSL2591()
         {
-            I2C_ADDRESS = i2cAddress;
+            Initialise();
         }
         public static bool IsInitialised { get; private set; } = false;
         private void Initialise()
@@ -74,6 +81,7 @@ namespace LessonLightSensorTSL2591
                 I2C = await I2cDevice.FromIdAsync(dis[0].Id, settings);   /* Create an I2cDevice with our selected bus controller and I2C settings */
 
                 PowerUp();
+                SetGain();
                 IsInitialised = true;
             }
             catch (Exception ex)
@@ -82,13 +90,13 @@ namespace LessonLightSensorTSL2591
             }
         }
         // Sensor Power up
-        public void PowerUp()
+        private void PowerUp()
         {
             write8(TSL2591_REG_ENABLE, 0x03);
         }
 
         // Sensor Power down
-        public void PowerDown()
+        private void PowerDown()
         {
             write8(TSL2591_REG_ENABLE, 0x00);
         }
@@ -99,9 +107,10 @@ namespace LessonLightSensorTSL2591
             return I2CRead8(TSL2591_REG_ID);
         }
 
-        public void SetGain(byte gain, byte int_time)
+        public void SetGain(byte gain = gainDefault, byte int_time = integrationTimeDefault)
         {
-            Initialise();
+            intTimeSet = int_time;
+            gainSet = gain;
             write8(TSL2591_REG_CONTROL, (byte)(gain + int_time));
         }
 
@@ -115,9 +124,10 @@ namespace LessonLightSensorTSL2591
             return Data;
         }
         // Calculate Lux
-        public double GetLux(uint gain, uint itime)
+        public double GetLux()
         {
-            Initialise();
+            uint gain = gainSet;
+            uint itime = intTimeSet;
             uint[] Data = GetData();
             uint CH0 = Data[0];
             uint CH1 = Data[1];
@@ -147,7 +157,7 @@ namespace LessonLightSensorTSL2591
             double cpl = (atime * again) / LUX_DF;
             double lux1 = (d0 - (LUX_COEFB * d1)) / cpl;
             double lux2 = ((LUX_COEFC * d0) - (LUX_COEFD * d1)) / cpl;
-            return Math.Max(lux1, lux2);
+            return Math.Round(Math.Max(lux1, lux2), 2);
         }
         // Write byte
         private void write8(byte addr, byte cmd)
