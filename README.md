@@ -69,14 +69,14 @@ namespace LessonLightSensorTSL2591
 ## Advanced sensor tuning: timing and gain
 This sensor support five different timing and three gain options. 
 
-1. Timing: this means how many samples the sensor will take before calculating the light level.
+* **Timing**: this means how many samples the sensor will take before calculating the light level.
 Changing the integration time gives you a longer time over which to sense light. Longer timelines are slower, but are good in very low light situtations!
 This sensor has three parameters for timing. 
-   1. 100ms the shortest measure time, use in bright light
-   2. 200ms average measure time, use in medium light
-   3. 300ms average measure time, use in medium light
-   4. 400ms long measure time, use in dim light
-   5. 500ms long measure time, use in dim light
+   * 100ms the shortest measure time, use in bright light
+   * 200ms average measure time, use in medium light
+   * 300ms average measure time, use in medium light
+   * 400ms long measure time, use in dim light
+   * 500ms long measure time, use in dim light
 ````C#
         TSL2591.INT_TIME_100MS;
         TSL2591.INT_TIME_200MS;
@@ -84,13 +84,13 @@ This sensor has three parameters for timing.
         TSL2591.INT_TIME_400MS;
         TSL2591.INT_TIME_500MS;
 ````
-2. Gain: You can change the gain on the fly, to adapt to brighter/dimmer light situations. 
-   1. TSL2591.GAIN_LOW: use in bright light
-   2. TSL2591.GAIN_MED: use in average light
-   3. TSL2591.GAIN_HIGH: use in very dim light
-   4. TSL2591.GAIN_MAX: use in darkness
+* **Gain**: You can change the gain on the fly, to adapt to brighter/dimmer light situations. 
+   * TSL2591.GAIN_LOW: use in bright light
+   * TSL2591.GAIN_MED: use in average light
+   * TSL2591.GAIN_HIGH: use in very dim light
+   * TSL2591.GAIN_MAX: use in darkness
 
-Tu use timing and gain, you need to write one additional line of code. First parameter for method SetTiming is gain and second parameter is timing. 
+Tu use timing and gain, you need to write one additional line of code. First parameter for method **SetTiming** is gain and second parameter is timing. 
 For example, setting gain MAX and timing maximum (500ms), you can measure almost complete darkness.
 ````C#
         public void Run(IBackgroundTaskInstance taskInstance)
