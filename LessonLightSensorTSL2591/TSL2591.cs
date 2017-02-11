@@ -157,7 +157,7 @@ namespace LessonLightSensorTSL2591
             double cpl = (atime * again) / LUX_DF;
             double lux1 = (d0 - (LUX_COEFB * d1)) / cpl;
             double lux2 = ((LUX_COEFC * d0) - (LUX_COEFD * d1)) / cpl;
-            return Math.Round(Math.Max(lux1, lux2), 2);
+            return Math.Round(Math.Max(lux1, lux2), 4);
         }
         // Write byte
         private void write8(byte addr, byte cmd)
