@@ -30,7 +30,7 @@ After adding this NuGet package, you just need to write 3 lines of code.
 
 1. Add reference to this module
 ````C#
-using RobootikaCOM.MPL115A2;
+using RobootikaCOM.TSL2591;
 ````
 
 
@@ -55,7 +55,7 @@ You need to integrate this project with my other example, where I teach how to s
 ````C#
 using Windows.ApplicationModel.Background;
 using System.Threading.Tasks;
-using RobootikaCOM.MPL115A2;
+using RobootikaCOM.TSL2591;
 
 namespace LessonLightSensorTSL2591
 {
