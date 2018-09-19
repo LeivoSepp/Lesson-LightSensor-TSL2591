@@ -26,14 +26,20 @@ Right-click in your project name and then "Manage NuGet packages"
 Open "Browse" tab, write "robootika" in search-window and then install RobootikaCOM.TSL2591 package into your project.
 ![image](https://cloud.githubusercontent.com/assets/13704023/22802827/0ba11ed8-ef1b-11e6-8f46-64a8bf8fd432.png)
 
-After adding this NuGet package, you just need to write 2 lines of code.
+After adding this NuGet package, you just need to write 3 lines of code.
 
-1. Create an object for sensor: 
+1. Add reference to this module
+````C#
+using RobootikaCOM.MPL115A2;
+````
+
+
+2. Create an object for sensor: 
 ````C#
         private TSL2591 TSL2591Sensor = new TSL2591();
 ````
 
-2. Write a while-loop, to read data from the sensor in every 1 sec.
+3. Write a while-loop, to read data from the sensor in every 1 sec.
 ````C#
             while (true)
             {
@@ -49,6 +55,7 @@ You need to integrate this project with my other example, where I teach how to s
 ````C#
 using Windows.ApplicationModel.Background;
 using System.Threading.Tasks;
+using RobootikaCOM.MPL115A2;
 
 namespace LessonLightSensorTSL2591
 {
