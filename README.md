@@ -82,7 +82,7 @@ This sensor support five different timing and three gain options.
 Changing the integration time gives you a longer time over which to sense light. Longer timelines are slower, but are good in very low light situtations!
 This sensor has three parameters for timing. 
    * 100ms the shortest measure time, use in bright light
-   * 200ms average measure time, use in medium light
+   * 200ms average measure time, use in medium light (default)
    * 300ms average measure time, use in medium light
    * 400ms long measure time, use in dim light
    * 500ms long measure time, use in dim light
@@ -95,7 +95,7 @@ This sensor has three parameters for timing.
 ````
 * **Gain**: You can change the gain on the fly, to adapt to brighter/dimmer light situations. 
    * TSL2591.GAIN_LOW: use in bright light
-   * TSL2591.GAIN_MED: use in average light
+   * TSL2591.GAIN_MED: use in average light (default)
    * TSL2591.GAIN_HIGH: use in very dim light
    * TSL2591.GAIN_MAX: use in darkness
 
